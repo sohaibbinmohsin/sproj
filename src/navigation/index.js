@@ -60,6 +60,7 @@ const Navigation = () => {
                 <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                 <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
                 <Stack.Screen name="Home" component={DrawerRoutes} />
+                <Stack.Screen name="HELP ME" component={HelpMeScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     )

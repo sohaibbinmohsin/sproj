@@ -6,13 +6,11 @@ import SocialSignInButton from '../../components/SocialSignInButton'
 import { useNavigation } from '@react-navigation/native'
 import { useForm} from 'react-hook-form'
 import auth from '@react-native-firebase/auth'
-import firestore from '@react-native-firebase/firestore'
 
 const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 const SignUpScreen = () => {
     const [loading, setLoading] = useState(false)
-    const db = firestore()
     const navigation = useNavigation()
     const {control, handleSubmit, watch, formState:{errors}} = useForm()
     const pwd = watch('password')

@@ -1,23 +1,17 @@
-// const nodemailer = require('nodemailer')
-// import { createTransport } from 'nodemailer'
 import React from 'react'
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import { useNavigation, DrawerActions } from '@react-navigation/native'
 import { useForm } from 'react-hook-form'
 import auth from '@react-native-firebase/auth'
+import firestore from '@react-native-firebase/firestore'
 
 const HelpMeScreen = () => {
     const navigation = useNavigation()
-    const {control, handleSubmit} = useForm()
-    // const transporter = createTransport({
-    //     service: 'hotmail',
-    //     auth:{
-    //         user: 'myswitchuser@outlook.com',
-    //         pass: 'H3lloH3llo'
-    //     }
-    // })
+    const {control, handleSubmit, reset} = useForm()
+    const db = firestore()
+
     const onHomePressed = () =>{
         navigation.navigate('Home')
     }
@@ -25,18 +19,17 @@ const HelpMeScreen = () => {
         navigation.openDrawer()
     }
     const onSendMessagePressed = data => {
-        // const options = {
-        //     from: 'myswitchuser@outlook.com',
-        //     to: 'myswitchhelp@outlook.com',
-        //     subject: data.subject,
-        //     message: 'Username: ' + auth().currentUser.displayName + '\n' + 'User email: ' + auth().currentUser.email + '\n' + 'Query: ' + data.message
-        // }
-        // transporter.sendMail(options, (err, info)=>{
-        //     if(err){
-        //         console.log(err)
-        //     }
-        //     console.log('Sent: '+info.response)
-        // })
+        const options = {
+            username: auth().currentUser.displayName,
+            email: auth().currentUser.email,
+            subject: data.subject, 
+            query: data.message,
+        }
+        db.collection('queries').add(options).then(()=>{
+            Alert.alert('Submitted', 'We have received your query. We will get intouch with you soon!')
+        }).catch(err => {
+            Alert.alert('Error', err.message)
+        })
     }
     return(
         <ScrollView showsHorizontalScrollIndicator={false}>
