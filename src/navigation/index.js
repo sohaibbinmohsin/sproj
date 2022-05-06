@@ -11,10 +11,13 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import NewPasswordScreen from '../screens/NewPasswordScreen';
 import HomeScreen from '../screens/HomeScreen';
 import StartScreen from '../screens/StartScreen';
+import GraphScreen from '../screens/GraphScreen/GraphScreen';
 import ChangeUsernameScreen from '../screens/ChangeUsernameScreen';
 import ChangeEmailScreen from '../screens/ChangeEmailScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 import HelpMeScreen from '../screens/HelpMeScreen';
+import AddNewSwitchScreen from '../screens/AddNewSwitchScreen';
+
 import CustomDrawer from '../components/CustomDrawer'
 
 const Stack = createNativeStackNavigator()
@@ -36,6 +39,7 @@ function DrawerRoutes() {
         }}
         >
         <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Add New Switch" component={AddNewSwitchScreen} />
         <Drawer.Screen name="Change Username" component={ChangeUsernameScreen} />
         <Drawer.Screen name="Change Email Address" component={ChangeEmailScreen} />
         <Drawer.Screen name="Change Password" component={ChangePasswordScreen} />
@@ -59,8 +63,8 @@ const Navigation = () => {
                 <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
                 <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                 <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
-                <Stack.Screen name="Home" component={DrawerRoutes} />
-                <Stack.Screen name="HELP ME" component={HelpMeScreen} />
+                <Stack.Screen name="Dashboard" component={DrawerRoutes} />
+                <Stack.Screen name="Graph" component={GraphScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     )

@@ -1,11 +1,12 @@
 import React, {useState} from 'react'
-import {View, Alert, Text, StyleSheet, useWindowDimensions, ScrollView} from 'react-native'
+import {View, Alert, Text, StyleSheet, ScrollView} from 'react-native'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import SocialSignInButton from '../../components/SocialSignInButton'
 import { useNavigation } from '@react-navigation/native'
 import { useForm} from 'react-hook-form'
 import auth from '@react-native-firebase/auth'
+import firestore from '@react-native-firebase/firestore'
 
 const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -13,6 +14,7 @@ const SignUpScreen = () => {
     const [loading, setLoading] = useState(false)
     const navigation = useNavigation()
     const {control, handleSubmit, watch, formState:{errors}} = useForm()
+    const db = firestore()
     const pwd = watch('password')
 
     const onRegisterPressed = async data => {
@@ -27,7 +29,11 @@ const SignUpScreen = () => {
                     displayName: data.username,
                 }
                 auth().currentUser.updateProfile(update).then(()=>{
-                    navigation.navigate('ConfirmEmail')
+                    db.collection('users').add({SwitchIds: [], Id: data.email}).then(() => {
+                        navigation.navigate('ConfirmEmail')
+                    })
+                }).catch(err => {
+                    Alert.alert('Error', err.message)
                 })
             }).catch(err => {
                 Alert.alert('Error', err.message)

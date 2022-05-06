@@ -5,20 +5,50 @@ import CustomButton from '../../components/CustomButton'
 import { useNavigation, DrawerActions } from '@react-navigation/native'
 import { useForm } from 'react-hook-form'
 import auth from '@react-native-firebase/auth'
+import firestore from '@react-native-firebase/firestore'
 
 const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 const ChangeEmailScreen = () => {
+    const [loading, setLoading] = useState(false)
     const navigation = useNavigation()
     const {control, handleSubmit} = useForm()
+    const db = firestore()
 
     const onChangeEmailPressed = data => {
+        if(loading){
+            return
+        }
+        setLoading(true)
+        const currEmail = auth().currentUser.email
         auth().currentUser.updateEmail(data.email)
         .then(()=>{
-            Alert.alert('Success', 'Your email address is changed successfully')
+            db.collection("users").where('Id','==', currEmail).get().then((snapshots)=>{
+                snapshots.docs.forEach(doc => {
+                    db.collection("users").doc(doc.id).update({
+                        Id: data.email
+                    }).then(()=>{
+                        Alert.alert('Success', 'Your email address is changed successfully')
+                        setLoading(false)
+                    }).catch(err => {
+                        console.log('Err1')
+                        console.log(err.message)
+                        Alert.alert('Error', err.message + '\n' + 'Please contact our support team to solve this issue')
+                        setLoading(false)
+                    })
+                })
+            }).catch(err => {
+                console.log('Err2')
+                console.log(err.message)
+                Alert.alert('Error', err.message + '\n' + 'Please contact our support team to solve this issue')
+                setLoading(false)
+            })
         })
         .catch(err => {
+            console.log('Err3')
+            console.log(err.message)
             Alert.alert('Error', err.message)
+            setLoading(false)
         })
     }
     const onHomePressed = () =>{
@@ -51,7 +81,7 @@ const ChangeEmailScreen = () => {
                     } 
                 }}
             />
-            <CustomButton text="Change Email" onPress={handleSubmit(onChangeEmailPressed)} />
+            <CustomButton text={loading ? "Loading... " : "Change Email"} onPress={handleSubmit(onChangeEmailPressed)} />
             
             <CustomButton text="Home" onPress={onHomePressed} type="SECONDARY" />
             

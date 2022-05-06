@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
 
         alignItems: 'center',
         borderRadius: 5,
+        
     },
 
     container_PRIMARY: {
@@ -49,8 +50,8 @@ const styles = StyleSheet.create({
     container_PROFILE: {
         width: 67,
         height: 67,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
         padding: 10,
         borderRadius: 40,
         backgroundColor: '#327CEB',
@@ -65,9 +66,10 @@ const styles = StyleSheet.create({
         height: 46,
         borderRadius: 14,
         justifyContent: 'center',
-        alignItems: 'center',
         padding: 10,
         backgroundColor: '#053275',
+        marginTop: 30,
+        margin: 20,
     },
 
     text: {

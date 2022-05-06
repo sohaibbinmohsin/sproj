@@ -12,7 +12,7 @@ const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))
 const SignInScreen = () => {
     const [loading, setLoading] = useState(false)
     const navigation = useNavigation()
-
+    var switchDisplayArrr = [{"iPower": "1", "onoff": "off", "text": "SWITCH ON"}, {"iPower": "1", "onoff": "on", "text": "SWITCH OFF"}, {"iPower": "1", "onoff": "on", "text": "SWITCH OFF"}]
     const {control, handleSubmit, formState:{errors}} = useForm()
 
     const onSignInPressed = async data => {
@@ -21,14 +21,19 @@ const SignInScreen = () => {
         }
         setLoading(true)
         try{
+            const {email, password} = data
             await auth().signInWithEmailAndPassword(data.email, data.password)
             .then(()=>{
-                if (auth().currentUser.emailVerified){
-                    navigation.navigate('Home')
-                }
-                else{
-                    navigation.navigate('ConfirmEmail')
-                }
+                // if (auth().currentUser.emailVerified){
+                //     navigation.navigate('Home')
+                // }
+                // else{
+                //     navigation.navigate('ConfirmEmail')
+                // }
+                navigation.navigate('Dashboard', {
+                    screen: 'HomeScreen',
+                    // params: { param1: "foo", param2: "bar" }
+                  })
             })
         } catch(e) {
             Alert.alert('Error', e.message)
