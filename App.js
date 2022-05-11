@@ -8,15 +8,20 @@
 
 import React from 'react';
 import {SafeAreaView, StyleSheet, Text} from 'react-native';
-import Navigation from './src/navigation'
+import Navigation from './src/navigation';
 import 'react-native-gesture-handler';
+import {Provider} from 'react-redux';
+import {Store} from './src/redux/store';
+
 console.reportErrorsAsExceptions = false;
 
 const App = () => {
   return (
-    <SafeAreaView style={styles.root}>
-      <Navigation />
-    </SafeAreaView>
+    <Provider store={Store}>
+      <SafeAreaView style={styles.root}>
+        <Navigation />
+      </SafeAreaView>
+    </Provider>
   );
 };
 
