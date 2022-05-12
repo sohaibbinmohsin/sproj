@@ -155,8 +155,11 @@ const HomeScreen = ({route}) => {
       })
       .catch(err => {
         Alert.alert('Error', err.message);
-        setLoading(false);
       });
+  };
+
+  const onGraphPressed = id => {
+    navigation.navigate('Graph', {Id: id});
   };
 
   return (
@@ -205,16 +208,19 @@ const HomeScreen = ({route}) => {
         style={{
           flexDirection: 'row',
           flexWrap: 'wrap',
-          justifyContent: 'space-between',
+          justifyContent: 'space-evenly',
         }}>
         {switchDisplayArr.map(buttonInfo => {
           // console.log('button', buttonInfo);
           return (
             <SwitchButton
+              key={Math.floor(Math.random() * 1100000000)}
+              id={buttonInfo.id}
               iPower={buttonInfo.iPower}
               onoff={buttonInfo.onoff}
               text={buttonInfo.text}
               name={buttonInfo.name}
+              onPress1={() => onGraphPressed(buttonInfo.id)}
               onPress2={() =>
                 onOnOnffPressed(
                   buttonInfo.onoff,
@@ -245,12 +251,6 @@ const HomeScreen = ({route}) => {
             NEW SWITCH
           </Text>
         </Pressable>
-        <Pressable
-          style={{
-            height: 165,
-            width: 150,
-            margin: 20,
-          }}></Pressable>
       </View>
     </ScrollView>
   );

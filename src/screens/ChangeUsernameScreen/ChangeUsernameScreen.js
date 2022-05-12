@@ -27,7 +27,7 @@ const ChangeUsernameScreen = () => {
       .then(() => {
         Alert.alert(
           'Success',
-          'Your username is changed successfully. Please sign in again',
+          'Your username is changed successfully. Please sign in again to continue',
         );
         setUserInitial(auth().currentUser.displayName[0]);
         try {

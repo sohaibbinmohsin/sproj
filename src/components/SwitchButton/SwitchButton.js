@@ -84,10 +84,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: 40,
     width: 122,
-    // alignSelf: 'center',
-
-    // paddingHorizontal: 20,
-    // padding: 2,
     marginVertical: 8,
   },
 });

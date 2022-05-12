@@ -100,7 +100,7 @@ const AddNewSwitchScreen = ({route}) => {
                                 .then(() => {
                                   Alert.alert(
                                     'Success',
-                                    'Your switch is configured successfully. Please sign in again',
+                                    'Your switch is configured successfully. Please sign in again to continue',
                                   );
                                   setLoading(false);
                                   try {
