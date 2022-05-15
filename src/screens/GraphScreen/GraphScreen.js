@@ -132,11 +132,12 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
+    setVolt('0.0');
     const onValueChange = database()
       .ref(`/${Id}/voltage`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
-          setVolt(snapshot.val());
+          setVolt(snapshot.val().toFixed(2));
         }
       });
 
@@ -145,11 +146,12 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
+    setCurr('0.0');
     const onValueChange = database()
       .ref(`/${Id}/current`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
-          setCurr(snapshot.val());
+          setCurr(snapshot.val().toFixed(2));
         }
       });
 
@@ -158,11 +160,12 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
+    setPow('0.0');
     const onValueChange = database()
       .ref(`/${Id}/power`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
-          setPow(snapshot.val());
+          setPow(snapshot.val().toFixed(2));
         }
       });
 
@@ -176,9 +179,9 @@ const GraphScreen = ({route}) => {
       .on('value', snapshot => {
         if (snapshot.val() != null) {
           setRunning(
-            (snapshot.val() / 60).toFixed(0).toString() +
+            (snapshot.val() / 3600).toFixed(0).toString() +
               '.' +
-              (snapshot.val() % 60).toString(),
+              (snapshot.val() / 60).toFixed(0).toString(),
           );
         } else {
           setRunning('0.0');
@@ -190,11 +193,12 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
+    setUnits('0.0');
     const onValueChange = database()
       .ref(`/${Id}/units`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
-          setUnits(snapshot.val());
+          setUnits(snapshot.val().toFixed(2));
         }
       });
 
