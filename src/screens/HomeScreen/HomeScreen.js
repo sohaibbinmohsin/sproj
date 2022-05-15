@@ -7,7 +7,6 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  Button,
 } from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import SwitchButton from '../../components/SwitchButton';
@@ -15,6 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import database from '@react-native-firebase/database';
 import {useRoute} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import {setTitle} from '../../redux/actions';
@@ -28,24 +28,15 @@ const HomeScreen = ({route}) => {
   const db = firestore();
   // const {control, handleSubmit} = useForm({defaultValues: {email: route?.params?.email, initial: route?.params?.initial, switchDisplayArrr: route?.params?.switchDisplayArrr}})
   var switchesId = [];
+  const [sId, setSId] = useState([]);
   var switchData = {};
   let switchDisplayArr1 = [];
   const [switchDisplayArr, setSwitchDisplayArr] = useState([]);
-  let first = false;
-  // var switchDisplayArrr = [
-  //   {iPower: '1', onoff: 'off', text: 'SWITCH ON'},
-  //   {iPower: '1', onoff: 'on', text: 'SWITCH OFF'},
-  //   {iPower: '1', onoff: 'on', text: 'SWITCH OFF'},
-  // ];
   const [totalUnitsConsumed, setTotalUnitsConsumed] = useState('0.0');
+  const [screen, setScreen] = useState(false);
   // setInterval(func, 5000);
   const [rend, setRend] = useState(false);
-  // const [rend1, setRend1] = useState(false);
-  // function func() {
-  //   setRend1(!rend1);
-  // }
-  //   const {switchAdded} = route.params;
-  //   console.log(switchAdded);
+  const [rend1, setRend1] = useState(false);
 
   auth().onAuthStateChanged(user => {
     if (!user) {
@@ -65,9 +56,7 @@ const HomeScreen = ({route}) => {
   };
   const addNewSwitch = () => {
     // console.warn('add new switch')
-    navigation.navigate('Add New Switch', {
-      recieved: true,
-    });
+    navigation.navigate('Add New Switch');
   };
 
   useEffect(() => {
@@ -79,6 +68,11 @@ const HomeScreen = ({route}) => {
         snapshot.docs.forEach(doc => {
           if (doc.data()['SwitchIds']) {
             switchesId = doc.data()['SwitchIds'];
+            // let sId = doc.data()['SwitchIds'];
+            // console.log(sId);
+            // setSwitchesId(sId);
+            setRend1(!rend1);
+            setSId(switchesId);
             switchesId.forEach(id => {
               db.collection('switches')
                 .where('Id', '==', id)
@@ -106,8 +100,9 @@ const HomeScreen = ({route}) => {
                 })
                 .then(result => {
                   setSwitchDisplayArr(result);
-                  totalUnits();
-                  first = true;
+                  // console.log(switchesId);
+                  // totalUnits();
+                  // first = true;
                   // setRend(!rend);
                 });
               // }
@@ -118,6 +113,42 @@ const HomeScreen = ({route}) => {
 
     // console.log('display:', switchDisplayArr);
   }, [rend]);
+
+  // useEffect(() => {
+  //   let tu = 0; //total units initialize
+  //   console.log('here');
+  //   console.log(sId);
+  //   sId.forEach(id => {
+  //     const onValueChange = database()
+  //       .ref(`/${id}/units`)
+  //       .on('value', snapshot => {
+  //         // console.log('User data: ', snapshot.val());
+  //         let u = snapshot.val();
+  //         if (u != null) {
+  //           tu += u;
+  //           setTotalUnitsConsumed(tu.toString());
+  //         }
+  //         // console.log(voltage);
+  //       });
+
+  //     // Stop listening for updates when no longer required
+  //     // return () => database().ref(`/${id}/units`).off('value', onValueChange);
+  //   });
+  // }, [rend1, sId]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/DDYzQyMthFYFMhKEnAsF/units`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setTotalUnitsConsumed(snapshot.val().toString());
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () =>
+      database().ref(`/DDYzQyMthFYFMhKEnAsF/units`).off('value', onValueChange);
+  }, []);
 
   // useEffect(() => {
   //   if (first) {
@@ -138,10 +169,14 @@ const HomeScreen = ({route}) => {
   const onOnOnffPressed = (live, id, name) => {
     // console.warn('onOnOnffPressed');
     let onOff = true;
+    let onoff1 = 1;
     let ans = 'on';
     if (live == 'on') {
       ans = 'off';
       onOff = false;
+      onoff1 = 0;
+    } else {
+      onoff1 = 1;
     }
     db.collection('switches')
       .doc(id)
@@ -149,9 +184,20 @@ const HomeScreen = ({route}) => {
         Live: onOff,
       })
       .then(() => {
-        let reply = 'Switch ' + name + ' is turned ' + ans;
-        Alert.alert('Success', reply);
-        setRend(!rend);
+        database()
+          .ref(`/${id}`)
+          .update({
+            Live: onoff1,
+          })
+          .then(() => {
+            // console.log('Data updated.');
+            let reply = 'Switch ' + name + ' is turned ' + ans;
+            Alert.alert('Success', reply);
+            setRend(!rend);
+          })
+          .catch(err => {
+            Alert.alert('Error', err.message);
+          });
       })
       .catch(err => {
         Alert.alert('Error', err.message);
@@ -159,7 +205,8 @@ const HomeScreen = ({route}) => {
   };
 
   const onGraphPressed = id => {
-    navigation.navigate('Graph', {Id: id});
+    setScreen(!screen);
+    navigation.navigate('Graph', {Id: id, change: screen});
   };
 
   return (

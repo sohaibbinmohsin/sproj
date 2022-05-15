@@ -7,7 +7,10 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Pressable,
+  Dimensions,
 } from 'react-native';
+import {LineChart} from 'react-native-chart-kit';
 import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
 import {useNavigation} from '@react-navigation/native';
@@ -15,6 +18,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {useForm} from 'react-hook-form';
 import {firebase} from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const GraphScreen = ({route}) => {
   const navigation = useNavigation();
@@ -25,11 +29,23 @@ const GraphScreen = ({route}) => {
     watch,
     formState: {errors},
   } = useForm();
-  const {Id} = route.params;
+  const {Id, change} = route.params;
   const [switchData, setSwitchData] = useState([]);
   const [fetch, setFetch] = useState(false);
   const [vis, setVis] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [voltage, setVoltage] = useState([0]);
+  const [power, setPower] = useState([0]);
+  const [time, setTime] = useState([0]);
+  const [volt, setVolt] = useState(0);
+  const [curr, setCurr] = useState(0);
+  const [pow, setPow] = useState(0);
+  const [running, setRunning] = useState(0);
+  const [units, setUnits] = useState(0);
+  let v = [1];
+  let p = [1];
+  let t = [1];
+
   useEffect(() => {
     db.collection('switches')
       .where('Id', '==', Id)
@@ -39,10 +55,152 @@ const GraphScreen = ({route}) => {
           let d = [];
           d.push(doc.data());
           setSwitchData(d);
+          // console.log(doc.data());
         });
       })
       .catch(err => Alert.alert('Error', err.message));
-  }, [Id, fetch]);
+  }, [Id, fetch, change]);
+
+  useEffect(() => {
+    // console.log(Id);
+    setVoltage([0]);
+    const onValueChange = database()
+      .ref(`/${Id}/Voltage`)
+      .on('value', snapshot => {
+        // console.log('User data: ', snapshot.val());
+        v = snapshot.val();
+        if (v != null) {
+          if (v.length > 10) {
+            let newV = v.slice(-10);
+            setVoltage(newV);
+          } else {
+            setVoltage(v);
+          }
+        }
+        // console.log(voltage);
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/Voltage`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    // console.log(Id);
+    setPower([0]);
+    const onValueChange = database()
+      .ref(`/${Id}/Power`)
+      .on('value', snapshot => {
+        // console.log('User data: ', snapshot.val());
+        p = snapshot.val();
+        if (p != null) {
+          if (p.length > 10) {
+            let newP = p.slice(-10);
+            // console.log('newP', newP);
+            setPower(newP);
+          } else {
+            setPower(p);
+          }
+        }
+      });
+    // console.log(power);
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/Power`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    // console.log(Id);
+    setTime([0]);
+    const onValueChange = database()
+      .ref(`/${Id}/Time`)
+      .on('value', snapshot => {
+        // console.log('User data: ', snapshot.val());
+        t = snapshot.val();
+        if (t != null) {
+          if (t.length > 10) {
+            let newT = t.slice(-10);
+            setTime(newT);
+          } else {
+            setTime(t);
+          }
+        }
+        // console.log(time);
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/Time`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/voltage`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setVolt(snapshot.val());
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/voltage`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/current`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setCurr(snapshot.val());
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/current`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/power`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setPow(snapshot.val());
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/power`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/time`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setRunning(
+            (snapshot.val() / 60).toFixed(0).toString() +
+              '.' +
+              (snapshot.val() % 60).toString(),
+          );
+        } else {
+          setRunning('0.0');
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/time`).off('value', onValueChange);
+  }, [Id]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/units`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setUnits(snapshot.val());
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/units`).off('value', onValueChange);
+  }, [Id]);
 
   const onSwitchOffPressed = async () => {
     // console.warn('onSwitchOffPressed');
@@ -76,7 +234,7 @@ const GraphScreen = ({route}) => {
     // console.warn('onDeleteSwitchPressed');
   };
   const onDeletePressed = async data => {
-    console.warn('onDeletePressed');
+    // console.warn('onDeletePressed');
     if (loading) {
       return;
     }
@@ -256,13 +414,129 @@ const GraphScreen = ({route}) => {
           type="DELETE"
         /> */}
       </View>
+      <View style={{marginHorizontal: 20}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            flexWrap: 'wrap',
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 24,
+              fontWeight: 'bold',
+              textDecorationLine: 'underline',
+            }}>
+            Voltage Graph
+          </Text>
+        </View>
+        <ScrollView
+          horizontal={true}
+          contentOffset={{x: 10000, y: 0}}
+          showsHorizontalScrollIndicator={false}>
+          <LineChart
+            data={{
+              labels: time,
+              datasets: [
+                {
+                  data: voltage,
+                },
+              ],
+            }}
+            width={Dimensions.get('window').width - 40} // from react-native
+            height={220}
+            xLabelsOffset={10}
+            // yAxisLabel="Voltage"
+            yAxisSuffix="V"
+            yAxisInterval={500} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: '#053275',
+              backgroundGradientFrom: '#053275',
+              backgroundGradientTo: '#053275',
+              decimalPlaces: 2, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: '6',
+                strokeWidth: '2',
+                stroke: '#327CEB',
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </ScrollView>
+      </View>
+
+      <View style={{marginHorizontal: 20}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            flexWrap: 'wrap',
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 24,
+              fontWeight: 'bold',
+              textDecorationLine: 'underline',
+            }}>
+            Power Graph
+          </Text>
+        </View>
+        <LineChart
+          data={{
+            labels: time,
+            datasets: [
+              {
+                data: power,
+              },
+            ],
+          }}
+          width={Dimensions.get('window').width - 40} // from react-native
+          height={220}
+          // yAxisLabel="Voltage"
+          yAxisSuffix="W"
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: '#053275',
+            backgroundGradientFrom: '#053275',
+            backgroundGradientTo: '#053275',
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+            propsForDots: {
+              r: '6',
+              strokeWidth: '2',
+              stroke: '#327CEB',
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      </View>
+
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-evenly',
           flexWrap: 'wrap',
         }}>
-        <View style={{alignItems: 'center', margin: 25}}>
+        <View style={{alignItems: 'center', margin: 25, marginBottom: 0}}>
           <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
             VOLTAGE (V)
           </Text>
@@ -272,7 +546,8 @@ const GraphScreen = ({route}) => {
                 switchData.length == 0
                   ? '0.0'
                   : switchData[0]['Live']
-                  ? switchData[0]['Voltage'].toString()
+                  ? // ? switchData[0]['Voltage'].toString()
+                    volt.toString()
                   : '0.0'
               }
               editable={false}
@@ -281,7 +556,13 @@ const GraphScreen = ({route}) => {
           </View>
         </View>
 
-        <View style={{alignItems: 'center', margin: 25, marginTop: 1}}>
+        <View
+          style={{
+            alignItems: 'center',
+            margin: 25,
+            marginTop: 1,
+            marginBottom: 0,
+          }}>
           <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
             UNITS
           </Text>
@@ -294,7 +575,8 @@ const GraphScreen = ({route}) => {
                 switchData.length == 0
                   ? '0.0'
                   : switchData[0]['Live']
-                  ? switchData[0]['Units Consumed'].toString()
+                  ? // ? switchData[0]['Units Consumed'].toString()
+                    units.toString()
                   : '0.0'
               }
               editable={false}
@@ -303,7 +585,7 @@ const GraphScreen = ({route}) => {
           </View>
         </View>
 
-        <View style={{alignItems: 'center', margin: 25}}>
+        <View style={{alignItems: 'center', margin: 25, marginBottom: 0}}>
           <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
             CURRENT (A)
           </Text>
@@ -313,7 +595,8 @@ const GraphScreen = ({route}) => {
                 switchData.length == 0
                   ? '0.0'
                   : switchData[0]['Live']
-                  ? switchData[0]['Current'].toString()
+                  ? // ? switchData[0]['Current'].toString()
+                    curr.toString()
                   : '0.0'
               }
               editable={false}
@@ -322,9 +605,9 @@ const GraphScreen = ({route}) => {
           </View>
         </View>
 
-        <View style={{alignItems: 'center', margin: 25}}>
+        <View style={{alignItems: 'center', margin: 25, marginBottom: 0}}>
           <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
-            POWER
+            POWER(W)
           </Text>
           <View style={styles.powerDisplay}>
             <TextInput
@@ -332,7 +615,8 @@ const GraphScreen = ({route}) => {
                 switchData.length == 0
                   ? '0.0'
                   : switchData[0]['Live']
-                  ? switchData[0]['Power'].toString()
+                  ? // ? switchData[0]['Power'].toString()
+                    pow.toString()
                   : '0.0'
               }
               editable={false}
@@ -341,7 +625,7 @@ const GraphScreen = ({route}) => {
           </View>
         </View>
 
-        <View style={{alignItems: 'center', margin: 25}}>
+        <View style={{alignItems: 'center', margin: 25, marginBottom: 0}}>
           <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
             RUNNING
           </Text>
@@ -354,7 +638,8 @@ const GraphScreen = ({route}) => {
                 switchData.length == 0
                   ? '0.0'
                   : switchData[0]['Live']
-                  ? switchData[0]['Running Time'].toString()
+                  ? // ? switchData[0]['Running Time'].toString()
+                    running
                   : '0.0'
               }
               editable={false}
@@ -362,6 +647,34 @@ const GraphScreen = ({route}) => {
             />
           </View>
         </View>
+      </View>
+      <View
+        style={{
+          alignItems: 'center',
+        }}>
+        <Pressable
+          onPress={() => {
+            navigation.goBack();
+          }}
+          style={{
+            height: 55,
+            width: 100,
+            padding: 12,
+            margin: 20,
+            alignItems: 'center',
+            borderRadius: 15,
+            backgroundColor: '#327CEB',
+            borderColor: 'white',
+          }}>
+          <Text
+            style={{
+              fontWeight: 'bold',
+              color: 'white',
+              fontSize: 20,
+            }}>
+            Back
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );

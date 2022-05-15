@@ -18,7 +18,7 @@ const AddNewSwitchScreen = ({route}) => {
     formState: {errors},
   } = useForm();
   const db = firestore();
-  const {recieved} = route.params;
+  // const {recieved} = route.params;
   // console.log(recieved);
 
   const onHomePressed = () => {
