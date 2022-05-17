@@ -42,6 +42,8 @@ const GraphScreen = ({route}) => {
   const [pow, setPow] = useState(0);
   const [running, setRunning] = useState(0);
   const [units, setUnits] = useState(0);
+  const [live, setLive] = useState(0);
+  const [Width, setWidth] = useState(Dimensions.get('window').width);
   let v = [1];
   let p = [1];
   let t = [1];
@@ -60,6 +62,20 @@ const GraphScreen = ({route}) => {
       })
       .catch(err => Alert.alert('Error', err.message));
   }, [Id, fetch, change]);
+
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/${Id}/Live`)
+      .on('value', snapshot => {
+        if (snapshot.val() != null) {
+          setLive(snapshot.val());
+          console.log(live);
+        }
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/${Id}/Live`).off('value', onValueChange);
+  }, [Id]);
 
   useEffect(() => {
     // console.log(Id);
@@ -132,12 +148,19 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
-    setVolt('0.0');
+    // setVolt('0.0');
     const onValueChange = database()
       .ref(`/${Id}/voltage`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
+          // if (live == 1) {
+
+          // } else {
+          //   setVolt(0);
+          // }
           setVolt(snapshot.val().toFixed(2));
+        } else {
+          setVolt(0);
         }
       });
 
@@ -146,12 +169,19 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
-    setCurr('0.0');
+    // setCurr('0.0');
     const onValueChange = database()
       .ref(`/${Id}/current`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
+          // if (live == 1) {
+
+          // } else {
+          //   setCurr(0);
+          // }
           setCurr(snapshot.val().toFixed(2));
+        } else {
+          setCurr(0);
         }
       });
 
@@ -165,7 +195,14 @@ const GraphScreen = ({route}) => {
       .ref(`/${Id}/power`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
+          // if (live == 1) {
+
+          // } else {
+          //   setPow(0);
+          // }
           setPow(snapshot.val().toFixed(2));
+        } else {
+          setPow(0);
         }
       });
 
@@ -178,10 +215,15 @@ const GraphScreen = ({route}) => {
       .ref(`/${Id}/time`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
+          // if (live == 1) {
+
+          // } else {
+          //   setRunning('0.0');
+          // }
           setRunning(
-            (snapshot.val() / 3600).toFixed(0).toString() +
+            (snapshot.val() / 720).toFixed(0).toString() +
               '.' +
-              (snapshot.val() / 60).toFixed(0).toString(),
+              (snapshot.val() / 12).toFixed(0).toString(),
           );
         } else {
           setRunning('0.0');
@@ -193,12 +235,19 @@ const GraphScreen = ({route}) => {
   }, [Id]);
 
   useEffect(() => {
-    setUnits('0.0');
+    // setUnits('0.0');
     const onValueChange = database()
       .ref(`/${Id}/units`)
       .on('value', snapshot => {
         if (snapshot.val() != null) {
+          // if (live == 1) {
+
+          // } else {
+          //   setUnits(0);
+          // }
           setUnits(snapshot.val().toFixed(2));
+        } else {
+          setUnits(0);
         }
       });
 
@@ -432,7 +481,7 @@ const GraphScreen = ({route}) => {
               fontWeight: 'bold',
               textDecorationLine: 'underline',
             }}>
-            Voltage Graph
+            Voltage-Time Graph
           </Text>
         </View>
         <ScrollView
@@ -449,6 +498,7 @@ const GraphScreen = ({route}) => {
               ],
             }}
             width={Dimensions.get('window').width - 40} // from react-native
+            // width={Width}
             height={220}
             xLabelsOffset={10}
             // yAxisLabel="Voltage"
@@ -493,7 +543,7 @@ const GraphScreen = ({route}) => {
               fontWeight: 'bold',
               textDecorationLine: 'underline',
             }}>
-            Power Graph
+            Power-Time Graph
           </Text>
         </View>
         <LineChart
@@ -509,6 +559,7 @@ const GraphScreen = ({route}) => {
           height={220}
           // yAxisLabel="Voltage"
           yAxisSuffix="W"
+          // xAxisLabel="s"
           yAxisInterval={1} // optional, defaults to 1
           chartConfig={{
             backgroundColor: '#053275',
@@ -555,7 +606,7 @@ const GraphScreen = ({route}) => {
                   : '0.0'
               }
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>
@@ -584,7 +635,7 @@ const GraphScreen = ({route}) => {
                   : '0.0'
               }
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>
@@ -604,7 +655,7 @@ const GraphScreen = ({route}) => {
                   : '0.0'
               }
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>
@@ -624,7 +675,7 @@ const GraphScreen = ({route}) => {
                   : '0.0'
               }
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>
@@ -647,7 +698,7 @@ const GraphScreen = ({route}) => {
                   : '0.0'
               }
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>

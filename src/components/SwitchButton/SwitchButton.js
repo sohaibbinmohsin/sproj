@@ -13,18 +13,18 @@ const SwitchButton = ({
   return (
     <View>
       <Pressable onPress={onPress1} style={[styles.container]}>
-        <View style={{alignItems: 'center', marginTop: 10}}>
-          <Text style={{color: 'white', fontSize: 14, fontWeight: 'bold'}}>
+        <View style={{alignItems: 'center', marginTop: 6}}>
+          <Text style={{color: 'white', fontSize: 10, fontWeight: 'bold'}}>
             INSTANTANEOUS
           </Text>
-          <Text style={{color: 'white', fontSize: 14, fontWeight: 'bold'}}>
+          <Text style={{color: 'white', fontSize: 10, fontWeight: 'bold'}}>
             POWER(kW)
           </Text>
           <View style={styles.powerDisplay}>
             <TextInput
               value={iPower}
               editable={false}
-              style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+              style={{color: 'black', fontSize: 15, alignSelf: 'center'}}
             />
           </View>
         </View>

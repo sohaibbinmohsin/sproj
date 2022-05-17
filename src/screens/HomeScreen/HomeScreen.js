@@ -245,9 +245,14 @@ const HomeScreen = ({route}) => {
         </Text>
         <View style={styles.container}>
           <TextInput
-            value={totalUnitsConsumed}
+            value={
+              auth().currentUser.email == 'sohaibmohsin2k@gmail.com'
+                ? totalUnitsConsumed
+                : '0.0'
+            }
+            // value="0.0"
             editable={false}
-            style={{color: 'black', fontSize: 18, alignSelf: 'center'}}
+            style={{color: 'black', fontSize: 14, alignSelf: 'center'}}
           />
         </View>
       </View>
